@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Food App</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+</head>
+<body ng-app="foodApp" ng-controller="FoodController">
+
+    <h2>Food List</h2>
+
+    <input type="text" ng-model="searchTerm" placeholder="Search by name">
+    <button ng-click="toggleAddForm()">Add New Food</button>
+
+    <div ng-repeat="food in foods | filter: searchTerm">
+        <img ng-src="{{ food.image }}" alt="Food Image" width="50">
+        <p>{{ food.name }}</p>
+        <p>Calories: {{ food.calories }}</p>
+        <input type="number" ng-model="food.quantity" placeholder="Quantity">
+        <button ng-click="addToTodaysList(food)">Add to Today's List</button>
+    </div>
+
+    <h2>Today's Foods</h2>
+
+    <div ng-repeat="food in todaysFoods">
+        {{ food.name }} <span ng-if="food.quantity > 1">x{{ food.quantity }}</span>
+    </div>
+
+    <form ng-if="showAddForm" ng-submit="addFood()">
+        <input type="text" ng-model="newFood.name" placeholder="Food Name">
+        <input type="number" ng-model="newFood.calories" placeholder="Calories">
+        <input type="text" ng-model="newFood.image" placeholder="Image URL">
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        angular.module('foodApp', [])
+            .controller('FoodController', function ($scope) {
+                $scope.foods = [
+                    { name: 'Apple', calories: 95, image: 'apple.jpg', quantity: 1 },
+                    { name: 'Banana', calories: 105, image: 'banana.jpg', quantity: 1 },
+                    // Add more foods here
+                ];
+
+                $scope.todaysFoods = [];
+
+                $scope.showAddForm = false;
+
+                $scope.toggleAddForm = function () {
+                    $scope.showAddForm = !$scope.showAddForm;
+                };
+
+                $scope.addToTodaysList = function (food) {
+                    if (food.quantity > 0) {
+                        const existingFood = $scope.todaysFoods.find(item => item.name === food.name);
+                        if (existingFood) {
+                            existingFood.quantity += food.quantity;
+                        } else {
+                            $scope.todaysFoods.push(angular.copy(food));
+                        }
+                    }
+                };
+
+                $scope.addFood = function () {
+                    $scope.foods.push(angular.copy($scope.newFood));
+                    $scope.newFood = {};
+                    $scope.showAddForm = false;
+                };
+            });
+    </script>
+
+</body>
+</html>
